@@ -51,7 +51,9 @@ class HumanoidStandup(Task):
             self._get_torso_height(state) - self.target_height
         )
         nominal_cost = jnp.sum(jnp.square(state.qpos[7:] - self.qstand[7:]))
-        return 10.0 * orientation_cost + 10.0 * height_cost + 0.1 * nominal_cost
+        return (
+            100.0 * orientation_cost + 100.0 * height_cost + 0.1 * nominal_cost
+        )
 
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""
@@ -71,8 +73,8 @@ class HumanoidStandup(Task):
     ) -> Dict[str, jax.Array]:
         """Randomly perturb the measured base position and velocities."""
         rng, q_rng, v_rng = jax.random.split(rng, 3)
-        q_err = 0.01 * jax.random.normal(q_rng, (7,))
-        v_err = 0.01 * jax.random.normal(v_rng, (6,))
+        q_err = 0.001 * jax.random.normal(q_rng, (7,))
+        v_err = 0.001 * jax.random.normal(v_rng, (6,))
 
         qpos = data.qpos.at[0:7].set(data.qpos[0:7] + q_err)
         qvel = data.qvel.at[0:6].set(data.qvel[0:6] + v_err)
