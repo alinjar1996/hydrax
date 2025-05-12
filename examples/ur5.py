@@ -6,6 +6,8 @@ from hydrax.algs import CEM
 from hydrax.simulation.deterministic import run_interactive
 from hydrax.tasks.ur5 import UR5
 
+import jax.numpy as jnp
+
 """
 Run an interactive simulation of UR5 manipulator target tracking task.
 """
@@ -30,7 +32,7 @@ task = UR5()
 # Set up the controller
 ctrl = CEM(
     task,
-    num_samples=512,
+    num_samples=100,
     num_elites=20,
     sigma_start=0.2,
     sigma_min=0.05,
@@ -51,13 +53,10 @@ mj_model.opt.enableflags = mujoco.mjtEnableBit.mjENBL_OVERRIDE
 
 # Set the initial state
 mj_data = mujoco.MjData(mj_model)
-mj_data.qpos[:] = task.reference[0]
-initial_knots = task.reference[: ctrl.num_knots, 7:]
+mj_data.qpos[:] = jnp.zeros_like(mj_data.qpos)
+mj_data.qpos[:6] = task.init_joint_angle
 
-if args.show_reference:
-    reference = task.reference
-else:
-    reference = None
+
 
 run_interactive(
     ctrl,
@@ -65,7 +64,4 @@ run_interactive(
     mj_data,
     frequency=100,
     show_traces=False,
-    reference=reference,
-    reference_fps=task.reference_fps,
-    initial_knots=initial_knots,
 )
