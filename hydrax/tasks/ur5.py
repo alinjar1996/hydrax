@@ -27,6 +27,20 @@ class UR5(Task):
         self.target_pos =  mj_model.body(name="target_1").pos
         self.target_quat =  mj_model.body(name="target_1").quat
 
+        self.mjx_data = mujoco.MjData(mj_model)
+
+		# self.mjx_model = mjx.put_model(mj_model)
+		# self.mjx_data = mjx.put_data(self.model, self.data)
+
+        self.geom_ids = jnp.array([
+                    mujoco.mj_name2id(mj_model, mujoco.mjtObj.mjOBJ_GEOM, f'robot_{i}')
+                    for i in range(10)
+                ])
+        self.mask = jnp.any(jnp.isin(self.mjx_data.contact.geom, self.geom_ids), axis=1)
+
+        self.collision = self.mjx_data.contact.dist[self.mask]
+
+
         for i in range(mj_model.nu):
                 print(mj_model.joint(i).name)
         
@@ -43,10 +57,28 @@ class UR5(Task):
 
         return tcp_pos
     
-    def quaternion_distance(self, q1, q2):
+    def _quaternion_distance(self, q1, q2):
         dot_product = jnp.abs(jnp.dot(q1, q2))
         dot_product = jnp.clip(dot_product, -1.0, 1.0)
+
         return 2 * jnp.arccos(dot_product)
+    
+    def _collision_cost(self) -> jax.Array:
+        
+        
+        y = 0.005
+
+        collision = self.collision.T
+		
+        # g = -collision[:, 1:]+collision[:, :-1]-y*collision[:, :-1]
+		
+        # cost_c = jnp.sum(jnp.max(g.reshape(g.shape[0], g.shape[1], 1), axis=-1, initial=0)) + jnp.sum(collision < 0)
+
+        g = -collision[1:]+collision[:-1]-y*collision[:-1]
+		
+        cost_c = jnp.sum(jnp.max(g.reshape(g.shape[0], 1), axis=-1, initial=0)) + jnp.sum(collision < 0)
+        
+        return cost_c
 
     def running_cost(self, state: mjx.Data, control: jax.Array) -> jax.Array:
         """The running cost ℓ(xₜ, uₜ) applied from t=1 to T-1."""
@@ -54,21 +86,30 @@ class UR5(Task):
         quat = self._get_eef_quat(state)  # Shape (4,)
         # Orientation cost using dot product of quaternions
         
-        orientation_cost = self.quaternion_distance(quat, self.target_quat)  # scalar
+        orientation_cost = self._quaternion_distance(quat, self.target_quat)  # scalar
 
         # Position cost
         pos = self._get_eef_pos(state)  # Shape (3,)
         
-        target_pos = jnp.broadcast_to(self.target_pos, pos.shape)
+        #target_pos = jnp.broadcast_to(self.target_pos, pos.shape)
         
-        position_cost = jnp.sum(jnp.square(pos - self.target_pos), axis = -1)  # scalar
+        position_cost = jnp.sum(jnp.square(pos - self.target_pos))  # scalar
         
-        # jax.debug.print("eef_pos: {}", pos)
-        # print("target_pos", self.target_pos)
-        
+        #jax.debug.print("mask sum: {}", jnp.sum(self.mask))
+
+        collision_cost = self._collision_cost()
+
+        # jax.lax.cond(
+        #     collision_cost != 0,
+        #     lambda _: jax.debug.print("collision cost: {}", collision_cost),
+        #     lambda _: None,
+        #     operand=None
+        #     )
+
+    
 
         # Weighted sum
-        return 50.0 * position_cost + 5.0 * orientation_cost 
+        return 50.0 * position_cost + 5.0 * orientation_cost + 0.0 * collision_cost
 
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""

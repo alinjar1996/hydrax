@@ -140,6 +140,8 @@ def run_interactive(  # noqa: PLR0912, PLR0915
             viewer.cam.fixedcamid = fixed_camera_id
             viewer.cam.type = 2
 
+        viewer.opt.flags[mujoco.mjtVisFlag.mjVIS_CONTACTPOINT] = True    
+
         # Set up rollout traces
         if show_traces:
             num_trace_sites = len(controller.task.trace_site_ids)
