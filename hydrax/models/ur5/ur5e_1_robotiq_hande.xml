@@ -4,6 +4,7 @@
 
   
   <option integrator="implicitfast"/>
+  <!-- Timestep and iterations are overwritten in the example file. -->
   <option timestep="0.01" iterations="1" ls_iterations="6">
     <flag eulerdamp="disable"/>
   </option>
@@ -140,12 +141,12 @@
                       <site name="tcp" pos="0 0 0.135"/>
                       <body name="hande_left_finger" pos="0 0 0.099">
                         <inertial pos="0.02262 -0.00759 0.00738" quat="0.871952 0.0369732 -0.211073 0.440205" mass="0.03804" diaginertia="1.22763e-05 1.22763e-05 1.22763e-05"/>
-                        <joint name="hande_left_finger_joint" class="hande_left_finger" pos="0 0 0" axis="1 0 0"/>
+                        <!-- <joint name="hande_left_finger_joint" class="hande_left_finger" pos="0 0 0" axis="1 0 0"/> -->
                         <geom type="mesh" group="1" rgba="0.4 0.4 0.4 1" mesh="left_finger"/>
                       </body>
                       <body name="hande_right_finger" pos="0 0 0.099">
                         <inertial pos="-0.02262 0.00759 0.00738" quat="0.871952 -0.0369732 0.211073 0.440205" mass="0.03804" diaginertia="1.22763e-05 1.22763e-05 1.22763e-05"/>
-                        <joint name="hande_right_finger_joint" class="hande_right_finger" pos="0 0 0" axis="-1 0 0"/>
+                        <!-- <joint name="hande_right_finger_joint" class="hande_right_finger" pos="0 0 0" axis="-1 0 0"/> -->
                         <geom type="mesh" group="1" rgba="0.4 0.4 0.4 1" mesh="right_finger"/>
                       </body>
                     </body>
@@ -159,16 +160,16 @@
     </body>
   </worldbody>
 
-  <equality>
+  <!-- <equality>
     <joint joint1="hande_left_finger_joint" joint2="hande_right_finger_joint" polycoef="0 1 0 0 0" />
-  </equality>
+  </equality> -->
 
-  <tendon>
+  <!-- <tendon>
     <fixed name="split">
       <joint joint="hande_left_finger_joint" coef="0.5" />
       <joint joint="hande_right_finger_joint" coef="0.5" />
     </fixed>
-  </tendon>
+  </tendon> -->
 
   <actuator>
     <general class="size3_1" name="shoulder_pan_1" joint="shoulder_pan_joint_1"/>
@@ -177,9 +178,9 @@
     <general class="size1_1" name="wrist_1_1" joint="wrist_1_joint_1"/>
     <general class="size1_1" name="wrist_2_1" joint="wrist_2_joint_1"/>
     <general class="size1_1" name="wrist_3_1" joint="wrist_3_joint_1"/>
-    <general name="hande_fingers_actuator" class="hande" tendon="split" ctrlrange="0 255"
+    <!-- <general name="hande_fingers_actuator" class="hande" tendon="split" ctrlrange="0 255"
       forcerange="-200 200" gaintype="affine" biastype="affine" gainprm="0.00980392"
-      biasprm="0 -100 -10" />
+      biasprm="0 -100 -10" /> -->
   </actuator>
 
   <!-- <keyframe>

@@ -32,22 +32,22 @@ task = UR5()
 # Set up the controller
 ctrl = CEM(
     task,
-    num_samples=100,
-    num_elites=20,
+    num_samples=50,
+    num_elites=10,
     sigma_start=0.2,
     sigma_min=0.05,
     explore_fraction=0.5,
     plan_horizon=0.6,
     spline_type="zero",
-    num_knots=4,
+    num_knots=2,
     iterations=args.iterations,
 )
 
 # Define the model used for simulation
 mj_model = task.mj_model
 mj_model.opt.timestep = 0.01
-mj_model.opt.iterations = 10
-mj_model.opt.ls_iterations = 50
+mj_model.opt.iterations = 1
+mj_model.opt.ls_iterations = 5
 mj_model.opt.o_solimp = [0.9, 0.95, 0.001, 0.5, 2]
 mj_model.opt.enableflags = mujoco.mjtEnableBit.mjENBL_OVERRIDE
 
@@ -62,6 +62,7 @@ run_interactive(
     ctrl,
     mj_model,
     mj_data,
-    frequency=10,
-    show_traces=False,
+    frequency=20,
+    show_traces=True,
+    max_traces=5,
 )

@@ -24,8 +24,11 @@ class UR5(Task):
 
         self.init_joint_angle = jnp.array([1.5, -1.8, 1.75, -1.25, -1.6, 0])
 
-        self.target_pos =  mj_model.body(name="target_0").pos
-        self.target_quat =  mj_model.body(name="target_0").quat
+        self.target_pos =  mj_model.body(name="target_1").pos
+        self.target_quat =  mj_model.body(name="target_1").quat
+
+        for i in range(mj_model.nu):
+                print(mj_model.joint(i).name)
         
 
     def _get_eef_quat(self, state: mjx.Data) -> jax.Array:
@@ -39,24 +42,36 @@ class UR5(Task):
         tcp_pos = state.site_xpos[self.tcp_id]
 
         return tcp_pos
+    
+    def quaternion_distance(self, q1, q2):
+        dot_product = jnp.abs(jnp.dot(q1, q2))
+        dot_product = jnp.clip(dot_product, -1.0, 1.0)
+        return 2 * jnp.arccos(dot_product)
 
     def running_cost(self, state: mjx.Data, control: jax.Array) -> jax.Array:
         """The running cost ℓ(xₜ, uₜ) applied from t=1 to T-1."""
         # Get quaternion of end-effector
         quat = self._get_eef_quat(state)  # Shape (4,)
         # Orientation cost using dot product of quaternions
-        quat_diff = 1.0 - jnp.square(jnp.dot(quat, self.target_quat))  # scalar
+        
+        orientation_cost = self.quaternion_distance(quat, self.target_quat)  # scalar
 
         # Position cost
         pos = self._get_eef_pos(state)  # Shape (3,)
-        position_cost = jnp.sum(jnp.square(pos - self.target_pos))  # scalar
-
+        
+        target_pos = jnp.broadcast_to(self.target_pos, pos.shape)
+        
+        position_cost = jnp.sum(jnp.square(pos - self.target_pos), axis = -1)  # scalar
+        
+        # jax.debug.print("eef_pos: {}", pos)
+        # print("target_pos", self.target_pos)
+        
 
         # Weighted sum
-        return 100.0 * quat_diff + 100.0 * position_cost
+        return 10.0 * position_cost + 1 * orientation_cost 
 
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""
-        print(self.model.nu)
+        #print(self.model.nu)
         return self.running_cost(state, jnp.zeros(self.model.nu))
         
