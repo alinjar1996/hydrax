@@ -94,6 +94,8 @@
           <geom mesh="shoulder_1_1" material="black_1" class="visual_1"/>
           <geom mesh="shoulder_2_1" material="jointgray_1" class="visual_1"/>
           <geom class="collision" size="0.06 0.06" pos="0 0 -0.04"/>
+          <geom name="robot_1" class="collision" size="0.06 0.06" pos="0 0 -0.04"/>
+          
           <body name="upper_arm_link_1" pos="0 0.138 0" quat="1 0 1 0">
             <inertial mass="8.393" pos="0 0 0.2125" diaginertia="0.133886 0.133886 0.0151074"/>
             <joint name="shoulder_lift_joint_1" class="size3_1"/>
@@ -103,6 +105,9 @@
             <geom mesh="upperarm_3_1" material="urblue_1" class="visual_1"/>
             <geom class="collision" pos="0 -0.04 0" quat="1 1 0 0" size="0.06 0.06"/>
             <geom class="collision" size="0.05 0.2" pos="0 0 0.2"/>
+            <geom name="robot_2" class="collision" pos="0 -0.04 0" quat="1 1 0 0" size="0.06 0.06"/>
+            <geom name="robot_3" class="collision" size="0.05 0.2" pos="0 0 0.2"/>
+            
             <body name="forearm_link_1" pos="0 -0.131 0.425">
               <inertial mass="2.275" pos="0 0 0.196" diaginertia="0.0311796 0.0311796 0.004095"/>
               <joint name="elbow_joint_1" class="size3_limited_1"/>
@@ -112,6 +117,9 @@
               <geom mesh="forearm_3_1" material="jointgray_1" class="visual_1"/>
               <geom class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.055 0.06"/>
               <geom class="collision" size="0.038 0.19" pos="0 0 0.2"/>
+              <geom name="robot_4" class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.055 0.06"/>
+              <geom name="robot_5" class="collision" size="0.038 0.19" pos="0 0 0.2"/>
+
               <body name="wrist_1_link_1" pos="0 0 0.392" quat="1 0 1 0">
                 <inertial mass="1.219" pos="0 0.127 0" diaginertia="0.0025599 0.0025599 0.0021942"/>
                 <joint name="wrist_1_joint_1" class="size1_1"/>
@@ -119,6 +127,8 @@
                 <geom mesh="wrist1_1_1" material="urblue_1" class="visual_1"/>
                 <geom mesh="wrist1_2_1" material="jointgray_1" class="visual_1"/>
                 <geom class="collision" pos="0 0.05 0" quat="1 1 0 0" size="0.04 0.07"/>
+                <geom name="robot_6" class="collision" pos="0 0.05 0" quat="1 1 0 0" size="0.04 0.07"/>
+
                 <body name="wrist_2_link_1" pos="0 0.127 0">
                   <inertial mass="1.219" pos="0 0 0.1" diaginertia="0.0025599 0.0025599 0.0021942"/>
                   <joint name="wrist_2_joint_1" axis="0 0 1" class="size1_1"/>
@@ -127,18 +137,26 @@
                   <geom mesh="wrist2_2_1" material="jointgray_1" class="visual_1"/>
                   <geom class="collision" size="0.04 0.06" pos="0 0 0.04"/>
                   <geom class="collision" pos="0 0.02 0.1" quat="1 1 0 0" size="0.04 0.04"/>
+                  <geom name="robot_7" class="collision" size="0.04 0.06" pos="0 0 0.04"/>
+                  <geom name="robot_8" class="collision" pos="0 0.02 0.1" quat="1 1 0 0" size="0.04 0.04"/>  
+
+
                   <body name="wrist_3_link_1" pos="0 0 0.1">
                     <inertial mass="0.1889" pos="0 0.0771683 0" quat="1 0 0 1"
                       diaginertia="0.000132134 9.90863e-05 9.90863e-05"/>
                     <joint name="wrist_3_joint_1" class="size1_1"/>
                     <geom material="linkgray_1" mesh="wrist3_1" class="visual_1"/>
                     <geom class="eef_collision" pos="0 0.08 0" quat="1 1 0 0" size="0.04 0.02"/>
+                    <geom name="robot_9" class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.04 0.02"/>
                     <site name="attachment_site_1" pos="0 0.1 0" quat="-1 1 0 0"/>
+                    
                     <body name="hande" pos="0 0.1 0" quat="-1 1 0 0">
                       <!-- <joint type="free" limited="false" actuatorfrclimited="false"/> -->
                       <geom name="hande_coupler" type="mesh" group="1" rgba="0.1 0.1 0.1 1" mesh="coupler"/>
                       <geom name="hande_base" type="mesh" group="1" rgba="0.1 0.1 0.1 1" mesh="hande"/>
                       <site name="tcp" pos="0 0 0.135"/>
+                      <geom name="robot_10" class="collision" pos="0 0 0.04" quat="1 0 0 1" size="0.04 0.07"/>
+
                       <body name="hande_left_finger" pos="0 0 0.099">
                         <inertial pos="0.02262 -0.00759 0.00738" quat="0.871952 0.0369732 -0.211073 0.440205" mass="0.03804" diaginertia="1.22763e-05 1.22763e-05 1.22763e-05"/>
                         <!-- <joint name="hande_left_finger_joint" class="hande_left_finger" pos="0 0 0" axis="1 0 0"/> -->
