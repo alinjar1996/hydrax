@@ -68,7 +68,7 @@ class UR5(Task):
         
 
         # Weighted sum
-        return 10.0 * position_cost + 1 * orientation_cost 
+        return 50.0 * position_cost + 5.0 * orientation_cost 
 
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""

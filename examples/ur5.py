@@ -32,16 +32,26 @@ task = UR5()
 # Set up the controller
 ctrl = CEM(
     task,
-    num_samples=50,
-    num_elites=10,
+    num_samples=100,
+    num_elites=20,
     sigma_start=0.2,
     sigma_min=0.05,
     explore_fraction=0.5,
-    plan_horizon=0.6,
+    plan_horizon=0.2,
     spline_type="zero",
-    num_knots=2,
+    num_knots=4,
     iterations=args.iterations,
 )
+
+# ctrl = MPPI(
+#         task,
+#         num_samples=32,
+#         noise_level=0.2,
+#         temperature=0.1,
+#         plan_horizon=1.0,
+#         spline_type="zero",
+#         num_knots=11,
+#     )
 
 # Define the model used for simulation
 mj_model = task.mj_model
