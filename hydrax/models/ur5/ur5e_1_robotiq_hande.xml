@@ -1,7 +1,12 @@
 <mujoco model="ur5e_1">
+
   <compiler angle="radian" meshdir="assets" autolimits="true"/>
 
+  
   <option integrator="implicitfast"/>
+  <option timestep="0.01" iterations="1" ls_iterations="6">
+    <flag eulerdamp="disable"/>
+  </option>
 
   <default>
     <default class="ur5e_1">
