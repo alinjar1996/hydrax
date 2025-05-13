@@ -89,7 +89,7 @@ class UR5(Task):
 
         collision = self.mjx_data.contact.dist[self.mask]
 
-        jax.debug.print("self.mask: {}", self.mask)
+        # jax.debug.print("self.mask: {}", self.mask)
 
         #jax.debug.print("contact.geom shape: {}", self.mjx_data.contact.geom.shape)
 
@@ -97,7 +97,7 @@ class UR5(Task):
 
         collision = collision.T
 
-        jax.debug.print("collision: {}", collision)
+        # jax.debug.print("collision: {}", collision)
 		
         # g = -collision[:, 1:]+collision[:, :-1]-y*collision[:, :-1]
 		
