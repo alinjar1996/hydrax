@@ -6,6 +6,8 @@ from mujoco import mjx
 from hydrax import ROOT
 from hydrax.task_base import Task
 
+from functools import partial
+
 
 class UR5(Task):
     """Standup task for the Unitree G1 humanoid."""
@@ -36,9 +38,22 @@ class UR5(Task):
                     mujoco.mj_name2id(mj_model, mujoco.mjtObj.mjOBJ_GEOM, f'robot_{i}')
                     for i in range(10)
                 ])
-        self.mask = jnp.any(jnp.isin(self.mjx_data.contact.geom, self.geom_ids), axis=1)
+        
 
-        self.collision = self.mjx_data.contact.dist[self.mask]
+        self.mask = jnp.any(jnp.isin(self.mjx_data.contact.geom, self.geom_ids), axis=1)
+        
+
+        #self.collision = self.mjx_data.contact.dist[self.mask]
+        
+        for i in range(len(self.geom_ids)):
+            print("geom_ids", self.geom_ids[i])
+        
+        jax.debug.print("contact.geom shape: {}", self.mjx_data.contact.geom.shape)
+		
+        jax.debug.print("contact.geom: {}", self.mjx_data.contact.geom)
+        #jax.debug.print("self.geom_ids[:] {}",self.geom_ids)
+        
+        
 
 
         for i in range(mj_model.nu):
@@ -63,12 +78,16 @@ class UR5(Task):
 
         return 2 * jnp.arccos(dot_product)
     
-    def _collision_cost(self) -> jax.Array:
+    @partial(jax.jit, static_argnums=(0,))
+    def collision_cost(self) -> jax.Array:
         
-        
+        collision = self.mjx_data.contact.dist[self.mask]
+
+        jax.debug.print("self.mask: {}", self.mask)
+
         y = 0.005
 
-        collision = self.collision.T
+        collision = collision.T
 		
         # g = -collision[:, 1:]+collision[:, :-1]-y*collision[:, :-1]
 		
@@ -97,7 +116,7 @@ class UR5(Task):
         
         #jax.debug.print("mask sum: {}", jnp.sum(self.mask))
 
-        collision_cost = self._collision_cost()
+        collision_cost = self.collision_cost()
 
         # jax.lax.cond(
         #     collision_cost != 0,
@@ -105,11 +124,16 @@ class UR5(Task):
         #     lambda _: None,
         #     operand=None
         #     )
-
-    
+        # jax.debug.print(
+        #     "collision cost: {}, min: {}, max: {}, shape: {}",
+        #     collision_cost,
+        #     jnp.min(collision_cost),
+        #     jnp.max(collision_cost),
+        #     collision_cost.shape
+        #     )
 
         # Weighted sum
-        return 50.0 * position_cost + 5.0 * orientation_cost + 0.0 * collision_cost
+        return 50.0 * position_cost + 5.0 * orientation_cost + 10.0 * collision_cost
 
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""

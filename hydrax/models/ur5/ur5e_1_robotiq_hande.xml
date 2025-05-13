@@ -27,11 +27,9 @@
       <default class="visual_1">
         <geom type="mesh" contype="0" conaffinity="0" group="2"/>
       </default>
+            
       <default class="collision">
-        <geom type="capsule" group="3"/>
-        <default class="eef_collision">
-          <geom type="capsule"/>
-        </default>
+        <geom type="capsule" contype="1" conaffinity="1" group="3"/>
       </default>
       <site size="0.001" rgba="0.5 0.5 0.5 0.3" group="4"/>
     </default>
@@ -93,7 +91,6 @@
           <geom mesh="shoulder_0_1" material="urblue_1" class="visual_1"/>
           <geom mesh="shoulder_1_1" material="black_1" class="visual_1"/>
           <geom mesh="shoulder_2_1" material="jointgray_1" class="visual_1"/>
-          <geom class="collision" size="0.06 0.06" pos="0 0 -0.04"/>
           <geom name="robot_1" class="collision" size="0.06 0.06" pos="0 0 -0.04"/>
           
           <body name="upper_arm_link_1" pos="0 0.138 0" quat="1 0 1 0">
@@ -103,8 +100,6 @@
             <geom mesh="upperarm_1_1" material="black_1" class="visual_1"/>
             <geom mesh="upperarm_2_1" material="jointgray_1" class="visual_1"/>
             <geom mesh="upperarm_3_1" material="urblue_1" class="visual_1"/>
-            <geom class="collision" pos="0 -0.04 0" quat="1 1 0 0" size="0.06 0.06"/>
-            <geom class="collision" size="0.05 0.2" pos="0 0 0.2"/>
             <geom name="robot_2" class="collision" pos="0 -0.04 0" quat="1 1 0 0" size="0.06 0.06"/>
             <geom name="robot_3" class="collision" size="0.05 0.2" pos="0 0 0.2"/>
             
@@ -115,8 +110,6 @@
               <geom mesh="forearm_1_1" material="linkgray_1" class="visual_1"/>
               <geom mesh="forearm_2_1" material="black_1" class="visual_1"/>
               <geom mesh="forearm_3_1" material="jointgray_1" class="visual_1"/>
-              <geom class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.055 0.06"/>
-              <geom class="collision" size="0.038 0.19" pos="0 0 0.2"/>
               <geom name="robot_4" class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.055 0.06"/>
               <geom name="robot_5" class="collision" size="0.038 0.19" pos="0 0 0.2"/>
 
@@ -126,7 +119,6 @@
                 <geom mesh="wrist1_0_1" material="black_1" class="visual_1"/>
                 <geom mesh="wrist1_1_1" material="urblue_1" class="visual_1"/>
                 <geom mesh="wrist1_2_1" material="jointgray_1" class="visual_1"/>
-                <geom class="collision" pos="0 0.05 0" quat="1 1 0 0" size="0.04 0.07"/>
                 <geom name="robot_6" class="collision" pos="0 0.05 0" quat="1 1 0 0" size="0.04 0.07"/>
 
                 <body name="wrist_2_link_1" pos="0 0.127 0">
@@ -135,8 +127,6 @@
                   <geom mesh="wrist2_0_1" material="black_1" class="visual_1"/>
                   <geom mesh="wrist2_1_1" material="urblue_1" class="visual_1"/>
                   <geom mesh="wrist2_2_1" material="jointgray_1" class="visual_1"/>
-                  <geom class="collision" size="0.04 0.06" pos="0 0 0.04"/>
-                  <geom class="collision" pos="0 0.02 0.1" quat="1 1 0 0" size="0.04 0.04"/>
                   <geom name="robot_7" class="collision" size="0.04 0.06" pos="0 0 0.04"/>
                   <geom name="robot_8" class="collision" pos="0 0.02 0.1" quat="1 1 0 0" size="0.04 0.04"/>  
 
@@ -146,7 +136,6 @@
                       diaginertia="0.000132134 9.90863e-05 9.90863e-05"/>
                     <joint name="wrist_3_joint_1" class="size1_1"/>
                     <geom material="linkgray_1" mesh="wrist3_1" class="visual_1"/>
-                    <geom class="eef_collision" pos="0 0.08 0" quat="1 1 0 0" size="0.04 0.02"/>
                     <geom name="robot_9" class="collision" pos="0 0.08 0" quat="1 1 0 0" size="0.04 0.02"/>
                     <site name="attachment_site_1" pos="0 0.1 0" quat="-1 1 0 0"/>
                     
