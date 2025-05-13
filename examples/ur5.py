@@ -1,8 +1,9 @@
 import argparse
 
+import evosax
 import mujoco
 
-from hydrax.algs import CEM, MPPI, PredictiveSampling
+from hydrax.algs import CEM, MPPI, PredictiveSampling, Evosax
 from hydrax.simulation.deterministic import run_interactive
 from hydrax.tasks.ur5 import UR5
 
@@ -32,6 +33,7 @@ subparsers = parser.add_subparsers(
 subparsers.add_parser("cem", help="Cross Entropy Method")
 subparsers.add_parser("mppi", help="Model Predictive Path Integral Control")
 subparsers.add_parser("ps", help="Predictive Sampling")
+subparsers.add_parser("evosax", help="EvoSax")
 
 
 args = parser.parse_args()
@@ -76,7 +78,18 @@ elif args.algorithm == "ps":
             spline_type="zero",
             num_knots=4,
             iterations=args.iterations,
-        )    
+        )
+elif args.algorithm == "evosax":
+    print("Running Evosax")
+    ctrl = Evosax(
+        task,
+        evosax.Sep_CMA_ES,
+        num_samples=100,
+        elite_ratio=0.5,
+        plan_horizon=0.2,
+        spline_type="zero",
+        num_knots=4,
+    )       
 else:
     parser.error("Invalid algorithm")
 
