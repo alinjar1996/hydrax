@@ -19,6 +19,8 @@ class UR5(Task):
             mj_model,
             trace_sites=["tcp"],
         )
+
+        self.model = mjx.put_model(mj_model)
              
         # Get the hande and tcp ids
         self.hande_id = mj_model.body(name="hande").id
@@ -31,8 +33,10 @@ class UR5(Task):
 
         self.mjx_data = mujoco.MjData(mj_model)
 
-		# self.mjx_model = mjx.put_model(mj_model)
-		# self.mjx_data = mjx.put_data(self.model, self.data)
+        self.mjx_data = mjx.put_data(mj_model, self.mjx_data)
+
+        
+        #self.mjx_data = jax.jit(mjx.forward)(self.model, self.mjx_data)
 
         self.geom_ids = jnp.array([
                     mujoco.mj_name2id(mj_model, mujoco.mjtObj.mjOBJ_GEOM, f'robot_{i}')
@@ -45,12 +49,12 @@ class UR5(Task):
 
         #self.collision = self.mjx_data.contact.dist[self.mask]
         
-        for i in range(len(self.geom_ids)):
-            print("geom_ids", self.geom_ids[i])
+        # for i in range(len(self.geom_ids)):
+        #     print("geom_ids", self.geom_ids[i])
         
         jax.debug.print("contact.geom shape: {}", self.mjx_data.contact.geom.shape)
 		
-        jax.debug.print("contact.geom: {}", self.mjx_data.contact.geom)
+        #jax.debug.print("contact.geom: {}", self.mjx_data.contact.geom)
         #jax.debug.print("self.geom_ids[:] {}",self.geom_ids)
         
         
@@ -83,7 +87,9 @@ class UR5(Task):
         
         collision = self.mjx_data.contact.dist[self.mask]
 
-        jax.debug.print("self.mask: {}", self.mask)
+        #jax.debug.print("self.mask: {}", self.mask)
+
+        #jax.debug.print("contact.geom shape: {}", self.mjx_data.contact.geom.shape)
 
         y = 0.005
 

@@ -85,12 +85,14 @@ mj_model = task.mj_model
 mj_model.opt.timestep = 0.01
 mj_model.opt.iterations = 1
 mj_model.opt.ls_iterations = 5
-mj_model.opt.o_solimp = [0.9, 0.95, 0.001, 0.5, 2]
-mj_model.opt.enableflags = mujoco.mjtEnableBit.mjENBL_OVERRIDE
+#mj_model.opt.o_solimp = [0.9, 0.95, 0.001, 0.5, 2]
+#mj_model.opt.enableflags = mujoco.mjtEnableBit.mjENBL_OVERRIDE
+
 
 # Set the initial state
 mj_data = mujoco.MjData(mj_model)
-jax.debug.print("mj_data.ctrl[:] {}", mj_data.ctrl[:])
+
+#jax.debug.print("mj_data.ctrl[:] {}", mj_data.ctrl[:])
 
 mj_data.qpos[:] = jnp.zeros_like(mj_data.qpos)
 mj_data.qpos[:6] = task.init_joint_angle

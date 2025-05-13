@@ -17,6 +17,7 @@ class Pendulum(Task):
         )
         super().__init__(mj_model, trace_sites=["tip"])
 
+
     def _distance_to_upright(self, state: mjx.Data) -> jax.Array:
         """Get a measure of distance to the upright position."""
         theta = state.qpos[0] - jnp.pi

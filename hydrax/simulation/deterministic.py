@@ -228,9 +228,6 @@ def run_interactive(  # noqa: PLR0912, PLR0915
             # simulate the system between spline replanning steps
             for i in range(sim_steps_per_replan):
                 mj_data.ctrl[:] = np.array(us[i])
-                # jax.debug.print("mj_data.ctrl[:] {}", mj_data.ctrl[:])
-                # jax.debug.print("mj_data.qpos[:] {}", mj_data.qpos[:])
-                # jax.debug.print("mj_data.qvel[:] {}", mj_data.qvel[:])
                 mujoco.mj_step(mj_model, mj_data)
                 viewer.sync()
 
