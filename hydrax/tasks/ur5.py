@@ -35,8 +35,6 @@ class UR5(Task):
 
         self.mjx_data = mjx.put_data(mj_model, self.mjx_data)
 
-        
-        #self.mjx_data = jax.jit(mjx.forward)(self.model, self.mjx_data)
 
         self.geom_ids = jnp.array([
                     mujoco.mj_name2id(mj_model, mujoco.mjtObj.mjOBJ_GEOM, f'robot_{i}')
@@ -84,16 +82,22 @@ class UR5(Task):
     
     @partial(jax.jit, static_argnums=(0,))
     def collision_cost(self) -> jax.Array:
-        
+
+        self.mjx_data = jax.jit(mjx.forward)(self.model, self.mjx_data)
+
+        self.mjx_data = jax.jit(mjx.step)(self.model, self.mjx_data)
+
         collision = self.mjx_data.contact.dist[self.mask]
 
-        #jax.debug.print("self.mask: {}", self.mask)
+        jax.debug.print("self.mask: {}", self.mask)
 
         #jax.debug.print("contact.geom shape: {}", self.mjx_data.contact.geom.shape)
 
         y = 0.005
 
         collision = collision.T
+
+        jax.debug.print("collision: {}", collision)
 		
         # g = -collision[:, 1:]+collision[:, :-1]-y*collision[:, :-1]
 		
