@@ -363,4 +363,24 @@
     <position name="slide_z" joint="slide_z" kp="100" ctrlrange="-0.5 0.5" ctrllimited="true"/>
   </actuator>  -->
 
+  <actuator>
+    <general class="size3" name="shoulder_pan_1" joint="shoulder_pan_joint_1"/>
+    <general class="size3" name="shoulder_lift_1" joint="shoulder_lift_joint_1"/>
+    <general class="size3_limited" name="elbow_1" joint="elbow_joint_1"/>
+    <general class="size1" name="wrist_1_1" joint="wrist_1_joint_1"/>
+    <general class="size1" name="wrist_2_1" joint="wrist_2_joint_1"/>
+    <general class="size1" name="wrist_3_1" joint="wrist_3_joint_1"/>
+    <!-- <general name="hande_fingers_actuator" class="hande" tendon="split" ctrlrange="0 255"
+      forcerange="-200 200" gaintype="affine" biastype="affine" gainprm="0.00980392"
+      biasprm="0 -100 -10" /> -->
+    
+    <general class="size3" name="shoulder_pan_2" joint="shoulder_pan_joint_2"/>
+    <general class="size3" name="shoulder_lift_2" joint="shoulder_lift_joint_2"/>
+    <general class="size3_limited" name="elbow_2" joint="elbow_joint_2"/>
+    <general class="size1" name="wrist_1_2" joint="wrist_1_joint_2"/>
+    <general class="size1" name="wrist_2_2" joint="wrist_2_joint_2"/>
+    <general class="size1" name="wrist_3_2" joint="wrist_3_joint_2"/>
+
+  </actuator>
+
 </mujoco>

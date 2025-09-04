@@ -50,7 +50,7 @@ class UR5(Task):
         # for i in range(len(self.geom_ids)):
         #     print("geom_ids", self.geom_ids[i])
         
-        jax.debug.print("contact.geom shape: {}", self.mjx_data.contact.geom.shape)
+        # jax.debug.print("contact.geom shape: {}", self.mjx_data.contact.geom.shape)
 		
         #jax.debug.print("contact.geom: {}", self.mjx_data.contact.geom)
         #jax.debug.print("self.geom_ids[:] {}",self.geom_ids)
@@ -58,8 +58,8 @@ class UR5(Task):
         
 
 
-        for i in range(mj_model.nu):
-                print(mj_model.joint(i).name)
+        # for i in range(mj_model.nu):
+        #         print(mj_model.joint(i).name)
         
 
     def _get_eef_quat(self, state: mjx.Data) -> jax.Array:
@@ -128,25 +128,14 @@ class UR5(Task):
 
         collision_cost = self.collision_cost()
 
-        # jax.lax.cond(
-        #     collision_cost != 0,
-        #     lambda _: jax.debug.print("collision cost: {}", collision_cost),
-        #     lambda _: None,
-        #     operand=None
-        #     )
-        # jax.debug.print(
-        #     "collision cost: {}, min: {}, max: {}, shape: {}",
-        #     collision_cost,
-        #     jnp.min(collision_cost),
-        #     jnp.max(collision_cost),
-        #     collision_cost.shape
-        #     )
+        # jax.debug.print("state.qvel {}", state.qvel)
+        # jax.debug.print("state.qpos {}", state.qpos)
 
         # Weighted sum
         return 50.0 * position_cost + 5.0 * orientation_cost + 0.0 * collision_cost
 
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""
-        #print(self.model.nu)
+        print("model actuators", self.model.nu)
         return self.running_cost(state, jnp.zeros(self.model.nu))
         

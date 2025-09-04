@@ -24,15 +24,20 @@ class Pendulum(Task):
     def _distance_to_upright(self, state: mjx.Data) -> jax.Array:
         """Get a measure of distance to the upright position."""
         theta = state.qpos[0] - jnp.pi
+        # jax.debug.print("theta {}", theta)
         theta_err = jnp.array([jnp.cos(theta) - 1, jnp.sin(theta)])
+        # jax.debug.print("theta_err {}", theta_err)
         return jnp.sum(jnp.square(theta_err))
 
     def running_cost(self, state: mjx.Data, control: jax.Array) -> jax.Array:
         """The running cost ℓ(xₜ, uₜ)."""
+        # print("state", state)
         theta_cost = self._distance_to_upright(state)
         theta_dot_cost = 0.01 * jnp.square(state.qvel[0])
         control_cost = 0.001 * jnp.sum(jnp.square(control))
         total_cost = theta_cost + theta_dot_cost + control_cost
+
+        # jax.debug.print("state.qvel[0] {}", state.qvel[0])
         return total_cost
 
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
