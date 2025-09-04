@@ -38,7 +38,7 @@ class Evosax(SamplingBasedController):
     def __init__(
         self,
         task: Task,
-        optimizer: evosax.Strategy,
+        # optimizer: evosax.Strategy,
         num_samples: int,
         es_params: EvoParams = None,
         num_randomizations: int = 1,

@@ -6,9 +6,12 @@ from mujoco import mjx
 from hydrax import ROOT
 from hydrax.task_base import Task
 
+# print("has ROOT?", hasattr(hydrax, "ROOT"))
+print("ROOT =", ROOT)
 
 class Pendulum(Task):
     """An inverted pendulum swingup task."""
+   
 
     def __init__(self) -> None:
         """Load the MuJoCo model and set task parameters."""
