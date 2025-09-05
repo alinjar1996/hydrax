@@ -24,7 +24,7 @@
       </default>
 
       <default class="collision">
-        <geom type="capsule" group="3" rgba="0.6 0.0 0.0 1"/>
+        <geom type="capsule" group="2" rgba="0.6 0.0 0.0 1"/>
       </default>
 
     </default>

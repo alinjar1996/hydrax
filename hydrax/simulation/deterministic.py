@@ -27,7 +27,7 @@ def run_interactive(  # noqa: PLR0912, PLR0915
     initial_knots: jax.Array = None,
     fixed_camera_id: int = None,
     show_traces: bool = True,
-    max_traces: int = 5,
+    max_traces: int = None,
     trace_width: float = 5.0,
     trace_color: Sequence = [1.0, 1.0, 1.0, 0.1],
     reference: np.ndarray = None,
