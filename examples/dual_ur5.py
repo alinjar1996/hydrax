@@ -49,25 +49,25 @@ if args.algorithm == "cem" or args.algorithm is None:
     ctrl = CEM(
         task,
         num_samples=100,
-        num_elites=20,
+        num_elites=50,
         sigma_start=0.2,
         sigma_min=0.05,
         explore_fraction=0.5,
         plan_horizon=0.2,
-        spline_type="zero",
-        num_knots=4,
+        spline_type="linear",
+        num_knots=5,
         iterations=args.iterations,
     )
 elif args.algorithm == "mppi":
     print("Running MPPI")
     ctrl = MPPI(
             task,
-            num_samples=400,
-            noise_level=0.2,
-            temperature=0.1,
-            plan_horizon=0.3,
-            spline_type="zero",
-            num_knots=4,
+            num_samples=100,
+            noise_level=0.02,
+            temperature=10.0,
+            plan_horizon=0.2,
+            spline_type="linear",
+            num_knots=10,
             iterations=args.iterations,
         )
 elif args.algorithm == "ps":
