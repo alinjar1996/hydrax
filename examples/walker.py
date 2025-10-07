@@ -55,6 +55,12 @@ mj_model.opt.timestep = 0.005
 mj_model.opt.iterations = 50
 mj_data = mujoco.MjData(mj_model)
 
+# print("qpos", mj_data.qpos)
+# print("qvel", mj_data.qvel)
+# print("ctrl", ctrl.num_samples)
+# print("ctrl", ctrl.noise_level)
+# print("ctrl", ctrl.task.get_trace_sites)
+
 # Run the interactive simulation
 run_interactive(
     ctrl,
@@ -62,6 +68,6 @@ run_interactive(
     mj_data,
     frequency=50,
     fixed_camera_id=0,
-    show_traces=False,
-    max_traces=1,
+    show_traces=True,
+    max_traces=10
 )
