@@ -10,3 +10,4 @@ hydrax/recordings/
 .idea
 *.sh
 *.cache
+*.npz

@@ -132,7 +132,9 @@ def run_interactive(  # noqa: PLR0912, PLR0915
         if not recorder.start():
             record_video = False
         renderer = mujoco.Renderer(mj_model, height=height, width=width)
-
+    
+    all_tq = []
+    all_us = []
     # Start the simulation
     with mujoco.viewer.launch_passive(mj_model, mj_data) as viewer:
         if fixed_camera_id is not None:
@@ -223,6 +225,13 @@ def run_interactive(  # noqa: PLR0912, PLR0915
             knots = policy_params.mean[None, ...]
             us = np.asarray(jit_interp_func(tq, tk, knots))[0]  # (ss, nu)
 
+            us = np.asarray(jit_interp_func(tq, tk, knots))[0]  # (ss, nu)
+
+            # Accumulate for later saving
+            all_tq.append(np.asarray(tq))
+            all_us.append(us)
+
+
             
 
             # simulate the system between spline replanning steps
@@ -248,6 +257,18 @@ def run_interactive(  # noqa: PLR0912, PLR0915
                 f"Realtime rate: {rtr:.2f}, plan time: {plan_time:.4f}s",
                 end="\r",
             )
+        
+        # Concatenate all timesteps
+        all_tq = np.concatenate(all_tq, axis=0)
+        all_us = np.concatenate(all_us, axis=0)
+
+        # Save to a single .npz file
+        save_dir = os.path.join(ROOT, "logs")
+        os.makedirs(save_dir, exist_ok=True)
+        np.savez(os.path.join(save_dir, "controls_full.npz"), tq=all_tq, us=all_us)
+
+        print(f"Saved all control data to {os.path.join(save_dir, 'controls_full.npz')}")
+
 
     # Preserve the last printout
     print("")
