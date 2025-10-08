@@ -53,10 +53,13 @@ else:
 # Define the model used for simulation
 mj_model = task.mj_model
 
+print(mj_model.opt.timestep)
+
 # Set the initial state
 mj_data = mujoco.MjData(mj_model)
 mj_data.qpos[:] = np.array([0.0])
 mj_data.qvel[:] = np.array([0.0])
+
 
 # Run the interactive simulation
 run_interactive(
