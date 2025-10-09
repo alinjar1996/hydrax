@@ -136,6 +136,9 @@ def run_interactive(  # noqa: PLR0912, PLR0915
     all_tq = []
     all_us = []
     all_rollouts = []
+    all_best_us = []
+    all_best_traces = []
+
     # Start the simulation
     try:
         with mujoco.viewer.launch_passive(mj_model, mj_data) as viewer:
@@ -184,6 +187,21 @@ def run_interactive(  # noqa: PLR0912, PLR0915
                 plan_start = time.time()
                 policy_params, rollouts = jit_optimize(mjx_data, policy_params)
                 plan_time = time.time() - plan_start
+
+                # 1. Best rollout index
+                best_idx = int(np.argmin(rollouts.costs))
+
+                # 2. Best controls
+                all_best_us.append(np.array(rollouts.controls[best_idx]))
+
+                # 3. Best trace
+                all_best_traces.append(np.array(rollouts.trace_sites[best_idx]))
+
+
+
+
+
+
 
                 # Visualize the rollouts
                 if show_traces:
@@ -235,6 +253,8 @@ def run_interactive(  # noqa: PLR0912, PLR0915
                 all_rollouts.append({
                     "controls": np.array(rollouts.controls),
                     "trace_sites": np.array(rollouts.trace_sites),  # if you want site traces
+                    "costs": np.array(rollouts.costs),  # costs
+                    "knots": np.array(rollouts.knots),  # costs
                 })
 
 
@@ -273,15 +293,17 @@ def run_interactive(  # noqa: PLR0912, PLR0915
         # Save to a single .npz file
         save_dir = os.path.join(ROOT, "logs")
         os.makedirs(save_dir, exist_ok=True)
-        # np.savez(os.path.join(save_dir, "controls_full_.npz"), tq=all_tq, us=all_us, rollouts=all_rollout)
+        save_file = "controls_rollouts_full_.npz"
         np.savez(
-        os.path.join(save_dir, "controls_rollouts_full.npz"),
-        tq=all_tq,
-        us=all_us,
-        rollouts=all_rollouts  # object array
+            os.path.join(save_dir, save_file),
+            tq=all_tq,
+            us=all_us,
+            best_us=np.array(all_best_us),
+            best_traces=np.array(all_best_traces),
+            rollouts=all_rollouts  # object array
         )
 
-        print(f"Saved all control data to {os.path.join(save_dir, 'controls_rollouts_full.npz')}")
+        print(f"Saved all control data to {os.path.join(save_dir, save_file)}")
 
 
     # Preserve the last printout
