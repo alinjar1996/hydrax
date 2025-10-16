@@ -51,8 +51,8 @@ else:
 
 # Define the model used for simulation
 mj_model = task.mj_model
-mj_model.opt.timestep = 0.005
-mj_model.opt.iterations = 50
+# mj_model.opt.timestep = 0.005
+# mj_model.opt.iterations = 50
 mj_data = mujoco.MjData(mj_model)
 
 # print("qpos", mj_data.qpos)
@@ -69,7 +69,7 @@ run_interactive(
     ctrl,
     mj_model,
     mj_data,
-    frequency=50,
+    frequency=100,
     fixed_camera_id=0,
     show_traces=True,
     max_traces=1,
