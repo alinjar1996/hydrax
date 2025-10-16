@@ -33,6 +33,7 @@ def run_interactive(  # noqa: PLR0912, PLR0915
     reference: np.ndarray = None,
     reference_fps: float = 30.0,
     record_video: bool = False,
+    task_name: str = None,
 ) -> None:
     """Run an interactive simulation with the MPC controller.
 
@@ -240,10 +241,17 @@ def run_interactive(  # noqa: PLR0912, PLR0915
                 sim_dt = mj_model.opt.timestep
                 t_curr = mj_data.time
 
+                # print("mj_model.nu", mj_model.nu)
+
                 tq = jnp.arange(0, sim_steps_per_replan) * sim_dt + t_curr
                 tk = policy_params.tk
                 knots = policy_params.mean[None, ...]
                 us = np.asarray(jit_interp_func(tq, tk, knots))[0]  # (ss, nu)
+
+                # print("\n===== us =====")
+                # print(us)
+                # print("================\n")
+
 
                 # Accumulate for later saving
                 all_tq.append(np.asarray(tq))
@@ -293,7 +301,7 @@ def run_interactive(  # noqa: PLR0912, PLR0915
         # Save to a single .npz file
         save_dir = os.path.join(ROOT, "logs")
         os.makedirs(save_dir, exist_ok=True)
-        save_file = "controls_rollouts_full_.npz"
+        save_file = f"controls_rollouts_full_{task_name}_knots_{controller.num_knots}.npz"
         np.savez(
             os.path.join(save_dir, save_file),
             tq=all_tq,

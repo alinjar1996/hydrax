@@ -61,6 +61,9 @@ mj_data = mujoco.MjData(mj_model)
 # print("ctrl", ctrl.noise_level)
 # print("ctrl", ctrl.task.get_trace_sites)
 
+task_name = task.__class__.__name__
+print("task_name", task_name)
+
 # Run the interactive simulation
 run_interactive(
     ctrl,
@@ -69,5 +72,6 @@ run_interactive(
     frequency=50,
     fixed_camera_id=0,
     show_traces=True,
-    max_traces=10
+    max_traces=1,
+    task_name=task_name
 )

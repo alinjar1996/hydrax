@@ -45,7 +45,7 @@ elif args.algorithm == "mppi":
         temperature=0.1,
         plan_horizon=1.0,
         spline_type="zero",
-        num_knots=11,
+        num_knots=50,
     )
 else:
     parser.error("Invalid algorithm")
@@ -60,7 +60,8 @@ mj_data = mujoco.MjData(mj_model)
 mj_data.qpos[:] = np.array([0.0])
 mj_data.qvel[:] = np.array([0.0])
 
-
+task_name = task.__class__.__name__
+print("task_name", task_name)
 # Run the interactive simulation
 run_interactive(
     ctrl,
@@ -70,4 +71,5 @@ run_interactive(
     fixed_camera_id=0,
     show_traces=False,
     max_traces=1,
+    task_name = task_name
 )

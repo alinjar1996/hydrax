@@ -53,10 +53,10 @@ elif args.algorithm == "cem":
     ctrl = CEM(
         task,
         num_samples=128,
-        num_elites=3,
+        num_elites=4,
         sigma_start=0.5,
         sigma_min=0.1,
-        spline_type="cubic",
+        spline_type="zero",
         plan_horizon=1.0,
         num_knots=4,
     )
@@ -67,6 +67,9 @@ else:
 mj_model = task.mj_model
 mj_data = mujoco.MjData(mj_model)
 
+task_name = task.__class__.__name__
+print("task_name", task_name)
+# print(mj_model.names) 
 # Run the interactive simulation
 run_interactive(
     ctrl,
@@ -76,4 +79,5 @@ run_interactive(
     fixed_camera_id=0,
     show_traces=False,
     max_traces=1,
+    task_name = task_name
 )
