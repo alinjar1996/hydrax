@@ -52,6 +52,9 @@ if __name__ == "__main__":
     mj_data.qpos[:] = mj_model.keyframe("stand").qpos
     mj_data.qpos[3:7] = [0.7, 0.0, -0.7, 0.0]
 
+    task_name = task.__class__.__name__
+    print("task_name", task_name)
+
     # Run the interactive simulation
     if args.asynchronous:
         print("Running asynchronous simulation")
@@ -75,5 +78,7 @@ if __name__ == "__main__":
             mj_model,
             mj_data,
             frequency=50,
-            show_traces=False,
+            show_traces=True,
+            max_traces = 1,
+            task_name = task_name
         )
