@@ -64,6 +64,9 @@ mj_data = mujoco.MjData(mj_model)
 mj_data.qpos[:] = task.reference[0]
 initial_knots = task.reference[: ctrl.num_knots, 7:]
 
+task_name = task.__class__.__name__
+print("task_name", task_name)
+
 if args.show_reference:
     reference = task.reference
 else:
@@ -78,4 +81,5 @@ run_interactive(
     reference=reference,
     reference_fps=task.reference_fps,
     initial_knots=initial_knots,
+    task_name=task_name
 )
