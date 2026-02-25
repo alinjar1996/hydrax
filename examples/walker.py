@@ -68,6 +68,6 @@ run_interactive(
     mj_data,
     frequency=50,
     fixed_camera_id=0,
-    show_traces=True,
-    max_traces=10
+    show_traces=False,
+    max_traces=1
 )

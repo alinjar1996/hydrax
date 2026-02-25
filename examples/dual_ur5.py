@@ -97,9 +97,9 @@ else:
 
 # Define the model used for simulation
 mj_model = task.mj_model
-mj_model.opt.timestep = 0.01
-mj_model.opt.iterations = 1
-mj_model.opt.ls_iterations = 5
+# mj_model.opt.timestep = 0.1
+# mj_model.opt.iterations = 1
+# mj_model.opt.ls_iterations = 5
 #mj_model.opt.o_solimp = [0.9, 0.95, 0.001, 0.5, 2]
 #mj_model.opt.enableflags = mujoco.mjtEnableBit.mjENBL_OVERRIDE
 
@@ -144,7 +144,7 @@ run_interactive(
     ctrl,
     mj_model,
     mj_data,
-    frequency=20,
-    show_traces=True,
-    max_traces=5,
+    frequency=10,
+    show_traces=False,
+    max_traces=1,
 )

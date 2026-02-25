@@ -1,0 +1,26 @@
+<mujoco>
+  <body name="cupboard" pos="-0.15 0.35 0" gravcomp="1">
+
+    <joint name="cupboard_joint" type="slide" axis="1 0 0" range="0 0"/>
+
+    <!-- Base: size(0.25, 0.4) -> size(0.4, 0.25). pos(0,0). -->
+    <geom name="cupboard_base" type="box" size="0.4 0.25 0.01" pos="0 0 0.0" rgba="0 0 1 1" contype="4194304" conaffinity="4194303"/>
+
+    <!-- Left Wall: size(0.25, 0.01)->size(0.01, 0.25). pos(0, 0.4)->pos(0.4, 0). -->
+    <!-- <geom name="cupboard_left_wall" type="box" size="0.01 0.25 0.5" pos="0.4 0 0.5" rgba="0.6 0.4 0.2 1"/> -->
+    
+    <!-- Right Wall: size(0.25, 0.01)->size(0.01, 0.25). pos(0, -0.4)->pos(-0.4, 0). -->
+    <!-- <geom name="cupboard_right_wall" type="box" size="0.01 0.25 0.5" pos="-0.4 0 0.5" rgba="0.6 0.4 0.2 1"/> -->
+    
+    <!-- Back Wall: size(0.01, 0.4)->size(0.4, 0.01). pos(-0.25, 0)->pos(0, 0.25). -->
+    <geom name="cupboard_back_wall" type="box" size="0.4 0.01 0.5" pos="0 0.25 0.5" rgba="1 0 0 1" contype="4194304" conaffinity="4194303"/>
+
+    <!-- Level 1 shelf: size(0.24, 0.38)->size(0.38, 0.24). pos(-0.01, 0)->pos(0, 0.01). -->
+    <!-- <geom name="cupboard_shelf_level1" type="box" size="0.38 0.24 0.01" pos="0 0.01 0.20" rgba="0.5 0.3 0.1 1" contype="4194304" conaffinity="8388607"/> -->
+    <geom name="cupboard_shelf_level1" type="box" size="0.38 0.24 0.01" pos="0 0.0 0.25" rgba="0 1 0 1" contype="4194304" conaffinity="4194303"/>
+
+    <!-- Top: size(0.25, 0.4)->size(0.4, 0.25). pos(0,0) is unchanged. -->
+    <!-- <geom name="cupboard_top" type="box" size="0.4 0.25 0.01" pos="0 0 1.0" rgba="0.6 0.4 0.2 1" contype="1" conaffinity="1"/> -->
+
+  </body>
+</mujoco>
