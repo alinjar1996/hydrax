@@ -10,7 +10,7 @@ from functools import partial
 
 import numpy as np
 
-class DUAL_UR5(Task):
+class DUAL_UR5_BALL(Task):
     
 
     def __init__(self) -> None:
