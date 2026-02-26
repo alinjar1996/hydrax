@@ -15,7 +15,7 @@ class DUAL_UR5_TRAY(Task):
 
     def __init__(self) -> None:
         """Load the MuJoCo model and set task parameters."""
-        mj_model = mujoco.MjModel.from_xml_path(ROOT + "/models/dual_ur5_ball/scene.xml")
+        mj_model = mujoco.MjModel.from_xml_path(ROOT + "/models/dual_ur5_tray/scene.xml")
         
         # Pass the regular MuJoCo model to the parent class
         super().__init__(
