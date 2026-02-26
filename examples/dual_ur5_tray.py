@@ -5,7 +5,7 @@ import mujoco
 
 from hydrax.algs import CEM, MPPI, PredictiveSampling, Evosax
 from hydrax.simulation.deterministic import run_interactive
-from hydrax.tasks.dual_ur5 import DUAL_UR5
+from hydrax.tasks.dual_ur5_ball import DUAL_UR5_BALL
 
 import jax.numpy as jnp
 
@@ -41,7 +41,7 @@ subparsers.add_parser("evosax", help="EvoSax")
 args = parser.parse_args()
 
 # Define the task (cost and dynamics)
-task = DUAL_UR5()
+task = DUAL_UR5_BALL()
 
 # Set up the controller
 if args.algorithm == "cem" or args.algorithm is None:
@@ -50,8 +50,8 @@ if args.algorithm == "cem" or args.algorithm is None:
         task,
         num_samples=500,
         num_elites=50,
-        sigma_start=0.02,
-        sigma_min=0.005,
+        sigma_start=0.002,
+        sigma_min=0.0005,
         explore_fraction=0.1,
         plan_horizon=0.5,
         spline_type="cubic",
