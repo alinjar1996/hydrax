@@ -101,6 +101,9 @@ class DUAL_UR5_BALL(Task):
         # self.mask_move = jnp.logical_or(wall_mask, self.mask_move)
         print("self.mask_move", self.mask_move.shape)
 
+        # print("self.mj_model.nu", self.mj_model.nu)
+
+
     
     @partial(jax.jit, static_argnums=(0,))
     def collision_cost(self, data: mjx.Data):

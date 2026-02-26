@@ -40,17 +40,33 @@ class DUAL_UR5_TRAY(Task):
         self.hande_id_1 = self.mj_model.body(name="hande_1").id
         self.tcp_id_1 = self.mj_model.site(name="tcp_1").id
 
+        self.target_0_id = self.mj_model.body(name="target_0").id
+        self.target_1_id = self.mj_model.body(name="target_1").id
+
+        self.target_pos_0 = self.mjx_data.xpos[self.target_0_id]
+        self.target_rot_0 = self.mjx_data.xquat[self.target_0_id].copy()
+        self.target_0 = np.concatenate([self.target_pos_0, self.target_rot_0])
+
+        self.target_pos_1 = self.mjx_data.xpos[self.target_1_id]
+        self.target_rot_1 = self.mjx_data.xquat[self.target_1_id].copy()
+        self.target_1 = np.concatenate([self.target_pos_1, self.target_rot_1])
+
         self.init_joint_angle = jnp.array([1.5, -1.8, 1.75, -1.25, -1.6, 0, 
                                            -1.5, -1.8, 1.75, -1.25, -1.6, 0])
+        
+        print("self.target_0", self.target_0)
+        print("self.target_1", self.target_1)
 
-        # Get target positions from MJX data
-        self.target_pos_0 = self.mjx_data.xpos[self.mj_model.body(name="target_0").id]
-        self.target_rot_0 = self.mjx_data.xquat[self.mj_model.body(name="target_0").id].copy()
-        self.target_0 = jnp.concatenate([self.target_pos_0, self.target_rot_0])
+        print("self.mj_model.nu", self.mj_model.nu)
 
-        self.target_pos_2 = self.mjx_data.xpos[self.mj_model.body(name="ball").id]
-        self.target_rot_2 = self.mjx_data.xquat[self.mj_model.body(name="ball").id].copy()
-        self.target_2 = jnp.concatenate([self.target_pos_2, self.target_rot_2])
+        # # Get target positions from MJX data
+        # self.target_pos_0 = self.mjx_data.xpos[self.mj_model.body(name="target_0").id]
+        # self.target_rot_0 = self.mjx_data.xquat[self.mj_model.body(name="target_0").id].copy()
+        # self.target_0 = jnp.concatenate([self.target_pos_0, self.target_rot_0])
+
+        # self.target_pos_2 = self.mjx_data.xpos[self.mj_model.body(name="ball").id]
+        # self.target_rot_2 = self.mjx_data.xquat[self.mj_model.body(name="ball").id].copy()
+        # self.target_2 = jnp.concatenate([self.target_pos_2, self.target_rot_2])
 
         # Create joint masks
         joint_names_pos = list()
@@ -82,62 +98,35 @@ class DUAL_UR5_TRAY(Task):
 
         self.geom_ids_all = np.array(self.geom_ids)
         
-        # Create collision masks
-        ball_geom_id = np.array([mujoco.mj_name2id(self.mj_model, mujoco.mjtObj.mjOBJ_GEOM, 'ball')])
-        # wall_geom_id = np.array([
-        #         mujoco.mj_name2id(self.mj_model, mujoco.mjtObj.mjOBJ_GEOM, 'ball'),
-        #         mujoco.mj_name2id(self.mj_model, mujoco.mjtObj.mjOBJ_GEOM, 'wall_0'),
-        #         mujoco.mj_name2id(self.mj_model, mujoco.mjtObj.mjOBJ_GEOM, 'ball_pick'),
-        #     ])
         
         # Create masks using MJX data
         self.mask = jnp.any(jnp.isin(self.mjx_data.contact.geom, self.geom_ids_all), axis=1)
         print("self.mask", self.mask.shape)
-        ball_mask = ~jnp.any(jnp.isin(self.mjx_data.contact.geom, ball_geom_id), axis=1)
+        
+    @partial(jax.jit, static_argnums=(0,))
+    def safe_normalize(self, q):
+        return q / (jnp.linalg.norm(q) + 1e-8)
 
-        # wall_mask = jnp.all(jnp.isin(self.mjx_data.contact.geom, wall_geom_id), axis=1)
-        # wall_mask = jnp.logical_or(ball_mask, wall_mask)
-        self.mask_move = jnp.logical_and(ball_mask, self.mask)
-        # self.mask_move = jnp.logical_or(wall_mask, self.mask_move)
-        print("self.mask_move", self.mask_move.shape)
-
-    
     @partial(jax.jit, static_argnums=(0,))
     def collision_cost(self, data: mjx.Data):
-        collision = data.contact.dist
+        collision = data.contact.dist[self.mask]
+
+        collision = collision.T
 
         # Compute collision cost for pick
         y = 0.15  # Higher y implies stricter condition on g to be positive
-        collision_pick = collision[self.mask]
-        collision_pick = collision_pick.T
+        
 
         # print("collision_pick", jnp.shape(collision_pick))
         # jax.debug.print("collision_pick {}", collision_pick)
 
-        g = -collision_pick[1:] + (1 - y) * collision_pick[:-1]
         # cost_c_pick = jnp.sum(jnp.max(g.reshape(g.shape[0], 1), axis=-1, initial=0)) + jnp.sum(collision_pick < 0)
         # cost_c_pick = jnp.sum(jnp.maximum(g, 0)) + jnp.sum(collision_pick < 0)
 
-        cost_c_pick = jnp.sum(collision_pick < 0)
+        cost_c = jnp.sum(collision < 0)
 
 
-
-
-        # jax.debug.print("jnp.shape(collision_pick) {}", jnp.shape(collision_pick))
-        # jax.debug.print("jnp.shape(cost_c_pick) {}", jnp.shape(cost_c_pick))
-
-
-        # Compute collision cost for move
-        collision_move = collision[self.mask_move]
-        collision_move = collision_move.T
-        g = -collision_move[1:] + (1 - y) * collision_move[:-1]
-        # cost_c_move = jnp.sum(jnp.max(g.reshape(g.shape[0], 1), axis=-1, initial=0)) + jnp.sum(collision_move < 0)
-
-        cost_c_move = jnp.sum(collision_move < 0)
-
-
-
-        return cost_c_pick, cost_c_move
+        return cost_c
     
     @partial(jax.jit, static_argnums=(0,))
     def initial_state_dist_cost(self, theta):
@@ -147,56 +136,113 @@ class DUAL_UR5_TRAY(Task):
     @partial(jax.jit, static_argnums=(0,))
     def eef_cost(self, eef_0, eef_1, eef_vel_lin_0, eef_vel_lin_1):
         # EEF Y Z at same level
-        cost_eef_pos = jnp.linalg.norm(eef_0[1:3] - eef_1[1:3])
+        cost_eef_pos = jnp.linalg.norm(eef_0[2] - eef_1[2])
         
         # EEF relative velocity perpendicular to the line of contacts       
         rel_pos = eef_0[:3] - eef_1[:3] 
         rel_vel = eef_vel_lin_0 - eef_vel_lin_1 
-        dot_products = jnp.sum(rel_pos * rel_vel, axis=-1)  
+        dot_products = jnp.sum(rel_pos * rel_vel)  
         cost_eef_vel = jnp.linalg.norm(dot_products)
 
-        # Move end effectors to correct orientation
-        target_rot_0 = jnp.array([0.183, -0.683, -0.683, 0.183])
-        dot_product = jnp.abs(jnp.dot(eef_0[3:]/jnp.linalg.norm(eef_0[3:]), target_rot_0/jnp.linalg.norm(target_rot_0)))
-        dot_product = jnp.clip(dot_product, -1.0, 1.0)
-        cost_r_0 = 2 * jnp.arccos(dot_product)
-        
-        target_rot_1 = jnp.array([0.183, -0.683, 0.683, -0.183])
-        dot_product = jnp.abs(jnp.dot(eef_1[3:]/jnp.linalg.norm(eef_1[3:]), target_rot_1/jnp.linalg.norm(target_rot_1)))
-        dot_product = jnp.clip(dot_product, -1.0, 1.0)
-        cost_r_1 = 2 * jnp.arccos(dot_product)
-        
-        cost_eef_r = (jnp.sum(cost_r_0) + jnp.sum(cost_r_1)) / 2
 
-        return cost_eef_pos, cost_eef_vel, cost_eef_r
+        return cost_eef_pos, cost_eef_vel
     
     @partial(jax.jit, static_argnums=(0,))
-    def dist_eef_obj_target_cost(self, eef_0, eef_1):
-        center_pos = (eef_0[:3] + eef_1[:3]) / 2 + jnp.array([0, 0, 0.05])
-        obj_goal = center_pos - self.target_0[:3]
-        obj_goal_dist = jnp.linalg.norm(obj_goal)
+    def pick_cost(self, eef_0, eef_1):
 
-        # Approach the ball with some offset
-        distances = jnp.linalg.norm(eef_0[:3] - eef_1[:3])
-        cost_dist = jnp.sum((distances - 0.19) ** 2)
+        ''' Cost for picking '''
 
-        # Distance between center point between two eef and object with the offset
-        center_point = (eef_0[:3] + eef_1[:3]) / 2
-        center_obj_dist = jnp.linalg.norm(center_point - (self.target_2[:3] - jnp.array([0, 0, 0.05])))
-        eef_obj_dist = jnp.sum(center_obj_dist)
+		# Move end effectors to pick positions
+        cost_g_0 = jnp.linalg.norm(eef_0[:3] - self.target_0[:3])
+        cost_g_1 = jnp.linalg.norm(eef_1[:3] - self.target_1[:3])
+        cost_g_pick = (jnp.sum(cost_g_0) + jnp.sum(cost_g_1))/2
+
+        # Move end effectors to pick orienton
+        # dot_product = jnp.abs(jnp.dot(eef_0[3:]/jnp.linalg.norm(eef_0[3:], axis=1).reshape(1, self.num).T, target_0[3:]/jnp.linalg.norm(target_0[3:])))
         
-        # Push ball to target location
-        obj_goal_dist = jnp.sum(obj_goal_dist)
+        # dot_product = jnp.dot(eef_0[3:]/jnp.linalg.norm(eef_0[3:]), self.target_0[3:]/jnp.linalg.norm(self.target_0[3:]))
+        # dot_product = jnp.abs(dot_product)
+        # dot_product = jnp.clip(dot_product, -1.0, 1.0)
+        # cost_r_0 = 2 * jnp.arccos(dot_product)
 
-        return cost_dist, eef_obj_dist, obj_goal_dist
+        q0 = self.safe_normalize(eef_0[3:])
+        qt0 = self.safe_normalize(self.target_0[3:])
+
+        dot_product = jnp.dot(q0, qt0)
+        dot_product = jnp.clip(dot_product, -1.0 + 1e-6, 1.0 - 1e-6)
+
+        cost_r_0 = 2.0 * jnp.arccos(jnp.abs(dot_product))
+
+        # dot_product = jnp.abs(jnp.dot(eef_1[3:]/jnp.linalg.norm(eef_1[3:], axis=1).reshape(1, self.num).T, target_1[3:]/jnp.linalg.norm(target_1[3:])))
+        # dot_product = jnp.dot(eef_1[3:]/jnp.linalg.norm(eef_1[3:]), self.target_1[3:]/jnp.linalg.norm(self.target_1[3:]))
+        
+        # dot_product = jnp.clip(dot_product, -1.0, 1.0)
+        # cost_r_1 = 2 * jnp.arccos(dot_product)
+
+        q1 = self.safe_normalize(eef_1[3:])
+        qt1 = self.safe_normalize(self.target_1[3:])
+
+        dot_product = jnp.dot(q1, qt1)
+        dot_product = jnp.clip(dot_product, -1.0 + 1e-6, 1.0 - 1e-6)
+        cost_r_1 = 2 * jnp.arccos(dot_product)
+
+        cost_r_pick = (jnp.sum(cost_r_0) + jnp.sum(cost_r_1))/2
+
+        # Keeping arms at the same distance
+        distances = jnp.linalg.norm(eef_0[:3] - eef_1[:3])
+        cost_dist = jnp.sum((distances - 0.3)**2)
+
+
+        return cost_g_pick, cost_r_pick, cost_dist
+    
+    # @partial(jax.jit, static_argnums=(0,))
+    # def move_cost(self, eef_0, eef_1):
+    #     ''' Cost for moving '''
+
+    #     # # Keeping arms at the same distance
+    #     # distances = jnp.linalg.norm(eef_0[:, :3] - eef_1[:, :3], axis=1)
+    #     # cost_dist = jnp.sum((distances - self.tray_dim)**2)
+
+    #     # Move tray to target position
+    #     cost_g_tray = jnp.linalg.norm(tray[:, :3] - target_2[:3])
+
+    #     dot_product = jnp.abs(jnp.dot(tray[:, 3:]/jnp.linalg.norm(tray[:, 3:], axis=1).reshape(1, self.num).T, target_2[3:]/jnp.linalg.norm(target_2[3:])))
+    #     dot_product = jnp.clip(dot_product, -1.0, 1.0)
+    #     cost_r_tray = 2 * jnp.arccos(dot_product)
+    #     cost_r_tray = jnp.sum(cost_r_tray)
+
+    #     #Keep end-effectors in contact with tray
+    #     cost_g_0_move = jnp.linalg.norm(eef_0[:, :3] - target_0_pos, axis=1)
+    #     cost_g_1_move = jnp.linalg.norm(eef_1[:, :3] - target_1_pos, axis=1)
+    #     cost_g_move = (jnp.sum(cost_g_0_move) + jnp.sum(cost_g_1_move))/2 
+
+    #     # Move end effectors to pick orientation
+    #     dot_product = jnp.abs(jnp.dot(eef_0[:, 3:]/jnp.linalg.norm(eef_0[:, 3:], axis=1).reshape(1, self.num).T, (target_0_rot/jnp.linalg.norm(target_0_rot, axis=1).reshape(1, self.num).T).T))
+    #     dot_product = jnp.clip(dot_product, -1.0, 1.0)
+    #     cost_r_0 = (2 * jnp.arccos(dot_product))*jnp.identity(self.num)
+
+    #     dot_product = jnp.abs(jnp.dot(eef_1[:, 3:]/jnp.linalg.norm(eef_1[:, 3:], axis=1).reshape(1, self.num).T, (target_1_rot/jnp.linalg.norm(target_1_rot, axis=1).reshape(1, self.num).T).T))
+    #     dot_product = jnp.clip(dot_product, -1.0, 1.0)
+    #     cost_r_1 = (2 * jnp.arccos(dot_product))*jnp.identity(self.num)
+
+    #     cost_r_move = (jnp.sum(cost_r_0) + jnp.sum(cost_r_1))/2
+
+    #     return cost_g_move, cost_r_move
 
     @partial(jax.jit, static_argnums=(0,))
     def running_cost(self, state: mjx.Data, control: jax.Array) -> jax.Array:
         """The running cost ℓ(xₜ, uₜ) applied from t=1 to T-1."""
+
+                # Get references for both arms
+       
         # Get quaternion of end-effector
         theta = state.qpos[self.joint_mask_pos]
-        collision_cost_pick, collision_cost_move = self.collision_cost(state)
-        initial_state_dist_cost = self.initial_state_dist_cost(theta)
+
+        cost_theta = self.initial_state_dist_cost(theta)
+
+        cost_c = self.collision_cost(state)
+        # cost_c = 0
+
 
         # First arm end-effector 
         eef_pos_0 = state.site_xpos[self.tcp_id_0]
@@ -248,34 +294,48 @@ class DUAL_UR5_TRAY(Task):
         eef_vel_lin_1 = jacp1[:, self.joint_mask_pos] @ state.qvel[self.joint_mask_vel]
         eef_vel_ang_1 = jacr1[:, self.joint_mask_pos] @ state.qvel[self.joint_mask_vel]
 
-        eef_cost_pos, eef_cost_vel, eef_cost_rot = self.eef_cost(eef_0, eef_1, eef_vel_lin_0, eef_vel_lin_1)
-        cost_dist, eef_obj_dist, obj_goal_dist = self.dist_eef_obj_target_cost(eef_0, eef_1)
+        cost_eef_pos, cost_eef_vel = self.eef_cost(eef_0, eef_1, eef_vel_lin_0, eef_vel_lin_1)
+        cost_g_pick, cost_r_pick, cost_dist = self.pick_cost(eef_0, eef_1)
+        # cost_g_pick, cost_r_pick, cost_dist = 0, 0, 0
+        # cost_eef_pos, cost_eef_vel = 0, 0
 
         cost_weights = {
-            'collision': 10, 
-            'theta': 0.3, 
-            'z-axis': 10.0, 
-            'velocity': 0.1,
-            'distance': 7.0, 
-            'allign': 2.0, 
-            'orientation': 7.0,
-            'eef_to_obj': 10.0, 
-            'obj_to_targ': 1.0, 
-            'pick': 1.0, 
-            'move': 0.0
+            'collision': 15,
+			'theta': 0.01,
+			'z-axis': 1.1,
+            'velocity': 0.02,
+
+            'position': 2.0,
+            'orientation_pick': 0.5,
+
+            'distance': 2.0,
+            'position_tray': 11.0,
+            'orientation_tray': 4.9,
+            'position_move':0.2,
+            'orientation_move': 2,
+
+            'pick': 1,
+            'move': 0
         }
 
+
+
         cost = (
-            cost_weights['pick'] * cost_weights['collision'] * collision_cost_pick +
-            # cost_weights['move'] * cost_weights['collision'] * collision_cost_move +
-            # cost_weights['theta'] * initial_state_dist_cost +
-            # cost_weights['velocity'] * eef_cost_vel +
-            # cost_weights['z-axis'] * eef_cost_pos +
-            # cost_weights['orientation'] * eef_cost_rot +
-            # cost_weights['distance'] * cost_dist +
-            cost_weights['pick'] * cost_weights['eef_to_obj'] * eef_obj_dist +
-            cost_weights['move'] * cost_weights['obj_to_targ'] * obj_goal_dist
-        )
+			# cost_weights['collision']*cost_c +
+			cost_weights['theta']*cost_theta +
+			cost_weights['z-axis']*cost_eef_pos +
+			cost_weights['velocity']*cost_eef_vel +
+
+			cost_weights['pick']*cost_weights['position']*cost_g_pick +
+			cost_weights['pick']*cost_weights['orientation_pick']*cost_r_pick +
+
+			cost_weights['move']*cost_weights['distance']*cost_dist 
+
+			# cost_weights['move']*cost_weights['position_tray']*cost_g_tray +
+			# cost_weights['move']*cost_weights['orientation_tray']*cost_r_tray +
+			# cost_weights['move']*cost_weights['position_move']*cost_g_move +
+			# cost_weights['move']*cost_weights['orientation_move']*cost_r_move 
+		)	
         return cost
 
     @partial(jax.jit, static_argnums=(0,))
