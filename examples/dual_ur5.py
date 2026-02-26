@@ -48,25 +48,25 @@ if args.algorithm == "cem" or args.algorithm is None:
     print("Running Cross Entropy Method")
     ctrl = CEM(
         task,
-        num_samples=100,
+        num_samples=500,
         num_elites=50,
-        sigma_start=0.2,
-        sigma_min=0.05,
+        sigma_start=0.02,
+        sigma_min=0.005,
         explore_fraction=0.5,
-        plan_horizon=0.2,
-        spline_type="linear",
-        num_knots=5,
+        plan_horizon=0.5,
+        spline_type="cubic",
+        num_knots=10,
         iterations=args.iterations,
     )
 elif args.algorithm == "mppi":
     print("Running MPPI")
     ctrl = MPPI(
             task,
-            num_samples=100,
+            num_samples=500,
             noise_level=0.02,
             temperature=10.0,
-            plan_horizon=0.2,
-            spline_type="linear",
+            plan_horizon=0.5,
+            spline_type="cubic",
             num_knots=10,
             iterations=args.iterations,
         )
@@ -97,9 +97,9 @@ else:
 
 # Define the model used for simulation
 mj_model = task.mj_model
-mj_model.opt.timestep = 0.01
-mj_model.opt.iterations = 1
-mj_model.opt.ls_iterations = 5
+# mj_model.opt.timestep = 0.02
+# mj_model.opt.iterations = 1
+# mj_model.opt.ls_iterations = 5
 #mj_model.opt.o_solimp = [0.9, 0.95, 0.001, 0.5, 2]
 #mj_model.opt.enableflags = mujoco.mjtEnableBit.mjENBL_OVERRIDE
 
@@ -144,7 +144,7 @@ run_interactive(
     ctrl,
     mj_model,
     mj_data,
-    frequency=20,
-    show_traces=True,
+    frequency=50,
+    show_traces=False,
     max_traces=5,
 )
