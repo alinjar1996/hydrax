@@ -305,8 +305,8 @@ class DUAL_UR5_TRAY(Task):
 			'z-axis': 1.1,
             'velocity': 0.02,
 
-            'position': 2.0,
-            'orientation_pick': 0.5,
+            'position': 100.0,
+            'orientation_pick': 50.0,
 
             'distance': 2.0,
             'position_tray': 11.0,
@@ -321,10 +321,10 @@ class DUAL_UR5_TRAY(Task):
 
 
         cost = (
-			# cost_weights['collision']*cost_c +
-			cost_weights['theta']*cost_theta +
-			cost_weights['z-axis']*cost_eef_pos +
-			cost_weights['velocity']*cost_eef_vel +
+			cost_weights['collision']*cost_c +
+			# cost_weights['theta']*cost_theta +
+			# cost_weights['z-axis']*cost_eef_pos +
+			# cost_weights['velocity']*cost_eef_vel +
 
 			cost_weights['pick']*cost_weights['position']*cost_g_pick +
 			cost_weights['pick']*cost_weights['orientation_pick']*cost_r_pick +
@@ -341,4 +341,9 @@ class DUAL_UR5_TRAY(Task):
     @partial(jax.jit, static_argnums=(0,))
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""
-        return self.running_cost(state, jnp.zeros(self.mj_model.nu))
+
+        cost_tot = self.running_cost(state, jnp.zeros(self.mj_model.nu))
+
+        # jax.debug.print("shape {}", jnp.shape(cost_tot))
+        # jax.debug.print("min {}", jnp.min(cost_tot))
+        return cost_tot

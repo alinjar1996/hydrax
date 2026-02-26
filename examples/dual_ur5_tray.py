@@ -62,12 +62,12 @@ elif args.algorithm == "mppi":
     print("Running MPPI")
     ctrl = MPPI(
             task,
-            num_samples=500,
-            noise_level=0.0002,
+            num_samples=1000,
+            noise_level=0.1,
             temperature=10.0,
-            plan_horizon=0.5,
+            plan_horizon=1.0,
             spline_type="cubic",
-            num_knots=10,
+            num_knots=20,
             iterations=args.iterations,
         )
 elif args.algorithm == "ps":
@@ -107,7 +107,6 @@ mj_model = task.mj_model
 # Set the initial state
 mj_data = mujoco.MjData(mj_model)
 
-#jax.debug.print("mj_data.ctrl[:] {}", mj_data.ctrl[:])
 
 # Create joint masks
 joint_names_pos = []
@@ -144,7 +143,7 @@ run_interactive(
     ctrl,
     mj_model,
     mj_data,
-    frequency=50,
-    show_traces=False,
-    max_traces=5,
+    frequency=20,
+    show_traces=True,
+    max_traces=2,
 )

@@ -105,7 +105,6 @@ mj_model.opt.ls_iterations = 5
 # Set the initial state
 mj_data = mujoco.MjData(mj_model)
 
-#jax.debug.print("mj_data.ctrl[:] {}", mj_data.ctrl[:])
 
 mj_data.qpos[:] = jnp.zeros_like(mj_data.qpos)
 mj_data.qpos[:6] = task.init_joint_angle

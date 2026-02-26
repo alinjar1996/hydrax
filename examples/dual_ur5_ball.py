@@ -107,7 +107,6 @@ mj_model = task.mj_model
 # Set the initial state
 mj_data = mujoco.MjData(mj_model)
 
-#jax.debug.print("mj_data.ctrl[:] {}", mj_data.ctrl[:])
 
 # Create joint masks
 joint_names_pos = []
