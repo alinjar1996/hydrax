@@ -315,35 +315,49 @@ class DUAL_UR5_TRAY(Task):
             'orientation_move': 2,
 
             'pick': 1,
-            'move': 0
+            'move': 0 
         }
 
 
 
         cost = (
-			cost_weights['collision']*cost_c +
+			cost_weights['collision']*cost_c 
 			# cost_weights['theta']*cost_theta +
 			# cost_weights['z-axis']*cost_eef_pos +
 			# cost_weights['velocity']*cost_eef_vel +
 
-			cost_weights['pick']*cost_weights['position']*cost_g_pick +
-			cost_weights['pick']*cost_weights['orientation_pick']*cost_r_pick +
+			# cost_weights['pick']*cost_weights['position']*cost_g_pick +
+			# cost_weights['pick']*cost_weights['orientation_pick']*cost_r_pick +
 
-			cost_weights['move']*cost_weights['distance']*cost_dist 
+			# cost_weights['move']*cost_weights['distance']*cost_dist 
 
 			# cost_weights['move']*cost_weights['position_tray']*cost_g_tray +
 			# cost_weights['move']*cost_weights['orientation_tray']*cost_r_tray +
 			# cost_weights['move']*cost_weights['position_move']*cost_g_move +
 			# cost_weights['move']*cost_weights['orientation_move']*cost_r_move 
 		)	
-        return cost
+
+        control_cost = 0.1 * jnp.sum(jnp.square(control))
+
+        return cost + control_cost
 
     @partial(jax.jit, static_argnums=(0,))
     def terminal_cost(self, state: mjx.Data) -> jax.Array:
         """The terminal cost ϕ(x_T)."""
+        # First arm end-effector 
+        eef_pos_0 = state.site_xpos[self.tcp_id_0]
+        eef_rot_0 = state.xquat[self.hande_id_0]   
+        eef_0 = jnp.concatenate([eef_pos_0, eef_rot_0])
+        
+        # Second arm end-effector
+        eef_pos_1 = state.site_xpos[self.tcp_id_1]
+        eef_rot_1 = state.xquat[self.hande_id_1]    
+        eef_1 = jnp.concatenate([eef_pos_1, eef_rot_1])
 
-        cost_tot = self.running_cost(state, jnp.zeros(self.mj_model.nu))
+        # cost_tot = self.running_cost(state, jnp.zeros(self.mj_model.nu))
+
+        cost_g_pick, cost_r_pick, cost_dist = self.pick_cost(eef_0, eef_1)
 
         # jax.debug.print("shape {}", jnp.shape(cost_tot))
         # jax.debug.print("min {}", jnp.min(cost_tot))
-        return cost_tot
+        return cost_g_pick *100 + cost_r_pick*50
