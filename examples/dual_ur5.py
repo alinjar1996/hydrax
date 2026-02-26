@@ -52,7 +52,7 @@ if args.algorithm == "cem" or args.algorithm is None:
         num_elites=50,
         sigma_start=0.02,
         sigma_min=0.005,
-        explore_fraction=0.5,
+        explore_fraction=0.1,
         plan_horizon=0.5,
         spline_type="cubic",
         num_knots=10,
@@ -63,7 +63,7 @@ elif args.algorithm == "mppi":
     ctrl = MPPI(
             task,
             num_samples=500,
-            noise_level=0.02,
+            noise_level=0.0002,
             temperature=10.0,
             plan_horizon=0.5,
             spline_type="cubic",
